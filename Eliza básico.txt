@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atendimento com Eliza</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 400px;
+            margin: 0 auto;
+            overflow-y: scroll;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Atendimento com a Psicóloga Eliza</h1>
+    <div class="chat-box" id="chatBox"></div>
+    <input type="text" id="userInput" placeholder="Digite sua mensagem...">
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        function sendMessage() {
+            const userMessage = userInput.value;
+            if (userMessage.trim() === '') return;
+
+            appendMessage('user', userMessage);
+
+            fetchMessageFromAI(userMessage)
+                .then(response => response.json())
+                .then(data => {
+                    const aiReply = data.choices[0].message.content;
+                    appendMessage('ai', aiReply);
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar mensagem para a API:', error);
+                });
+
+            userInput.value = '';
+        }
+
+        function fetchMessageFromAI(userMessage) {
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+            const apiKey = 'SUA_CHAVE_DE_API_AQUI';
+            const requestData = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'user', content: userMessage },
+                        { role: 'assistant', content: 'Você é um Psicólogo, seu nome é Eliza' }
+                    ],
+                }),
+            };
+
+            return fetch(apiUrl, requestData);
+        }
+
+        function appendMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', role);
+            messageDiv.textContent = content;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>

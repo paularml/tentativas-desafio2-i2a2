@@ -1,0 +1,161 @@
+!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atendimento com Dr. Arthur</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 50%;
+            width: auto;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        .video-container {
+            position: relative;
+            overflow: hidden;
+            padding-top: 56.25%; /* Proporção de 16:9 */
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .user-input {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+textarea {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    font-size: 14px;
+}
+
+button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+}
+        /* Resto dos estilos */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="video-container">
+                <video src="imagens/drarthurvideo2.mp4" alt="Psicólogo Arthur" controls autoplay loop></video>
+            </div>
+            <h1 class="title">Bem-vindo ao Atendimento de Bem-Estar com Dr. Arthur</h1>
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="user-input">
+            <div class="input-container">
+                <textarea id="userInput" placeholder="Digite sua mensagem..." autofocus></textarea>
+                <button id="sendButton">Enviar</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatBox = document.getElementById('chatBox');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+
+            userInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            sendButton.addEventListener('click', () => {
+                sendMessage();
+            });
+
+            setTimeout(() => {
+                const arthurGreeting = "Olá! Eu sou o Dr. Arthur, um psicólogo especializado em bem-estar emocional e mental. Estou aqui para ajudá-lo a compreender seus sentimentos e encontrar maneiras saudáveis de lidar com eles. Como você está se sentindo hoje?";
+                appendMessage('ai', arthurGreeting);
+            }, 500);
+
+            function sendMessage() {
+                const userMessage = userInput.value.trim();
+                if (!userMessage) return;
+
+                appendMessage('user', userMessage);
+
+                fetchMessageFromAI(userMessage)
+                    .then(response => response.json())
+                    .then(data => {
+                        const aiReply = data.choices[0].message.content;
+                        appendMessage('ai', aiReply);
+                    })
+                    .catch(error => {
+                        console.error('Erro ao enviar mensagem para a API:', error);
+                    });
+                userInput.value = '';
+            }
+            function fetchMessageFromAI(userMessage) {
+                const apiUrl = 'https://api.openai.com/v1/chat/completions';
+                const apiKey = '';
+                const requestData = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            { role: 'user', content: userMessage },
+                            { role: 'assistant', content: 'Você é um Psicólogo da linha a Psicologia positiva, e Augusto Cury, e seu nome é Dr. Arthur' }
+                        ],
+                    }),
+                };
+
+                return fetch(apiUrl, requestData);
+            }
+
+            function appendMessage(role, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', role);
+                messageDiv.textContent = content;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
